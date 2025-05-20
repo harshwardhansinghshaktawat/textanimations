@@ -1,5 +1,3 @@
-// quote-animation.js - Custom element for animated romantic quote
-
 class QuoteAnimation extends HTMLElement {
   static get observedAttributes() {
     return ['quote-text', 'author', 'text-color', 'animation-speed'];
@@ -8,13 +6,12 @@ class QuoteAnimation extends HTMLElement {
   constructor() {
     super();
     
-    // Default properties with romantic theme
+    // Default properties with new romantic theme
     this.props = {
-      quoteText: `« Je t’aime non seulement pour ce que tu es, 
-mais pour ce que je suis quand je suis avec toi. »`,
-      author: 'Elizabeth Barrett Browning',
-      textColor: '#FFF5F5', // Soft romantic pink
-      animationSpeed: 80 // Delay between letters in ms
+      quoteText: `« L’amour est une étoile dans la nuit, guidant nos âmes vers l’éternité. »`,
+      author: 'Victor Hugo',
+      textColor: '#FFE4E1', // Misty rose for romantic feel
+      animationSpeed: 100 // Delay between letters in ms
     };
     
     // Create a shadow DOM
@@ -23,7 +20,7 @@ mais pour ce que je suis quand je suis avec toi. »`,
     // Create an intersection observer to detect when element enters viewport
     this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
       root: null, // Use the viewport
-      threshold: 0.1 // Fire when 10% of the element is visible
+      threshold: 0.2 // Fire when 20% of the element is visible
     });
     
     // Flag to track if animation has been started
@@ -58,7 +55,7 @@ mais pour ce que je suis quand je suis avec toi. »`,
         this.props.textColor = newValue;
         break;
       case 'animation-speed':
-        this.props.animationSpeed = parseInt(newValue, 10) || 80;
+        this.props.animationSpeed = parseInt(newValue, 10) || 100;
         break;
     }
     
@@ -66,6 +63,8 @@ mais pour ce que je suis quand je suis avec toi. »`,
     
     // Restart animation if it was already started
     if (this.animationStarted) {
+      this.animationStarted = false; // Reset to allow re-animation
+      this.observer.observe(this); // Re-observe for viewport entry
       this.startAnimation();
     }
   }
@@ -76,8 +75,7 @@ mais pour ce que je suis quand je suis avec toi. »`,
     const styleElem = shadowRoot.querySelector('style');
     
     if (textElem) {
-      textElem.textContent = `${this.props.quoteText}
-${this.props.author}`;
+      textElem.textContent = `${this.props.quoteText}\n${this.props.author}`;
     }
     
     if (styleElem) {
@@ -107,14 +105,14 @@ ${this.props.author}`;
         // Check if anime.js is loaded before starting animation
         if (typeof anime !== 'undefined') {
           this.startAnimation();
-          this.observer.disconnect(); // Disconnect observer to ensure animation runs only once
+          this.observer.disconnect(); // Disconnect to ensure animation runs only once
         } else {
-          // If anime.js isn't loaded yet, wait for it
+          // Wait for anime.js to load
           const checkAnime = setInterval(() => {
             if (typeof anime !== 'undefined') {
               clearInterval(checkAnime);
               this.startAnimation();
-              this.observer.disconnect(); // Disconnect after animation starts
+              this.observer.disconnect();
             }
           }, 100);
         }
@@ -141,10 +139,10 @@ ${this.props.author}`;
     }).add({
       targets: Array.from(shadowRoot.querySelectorAll('.letter')),
       opacity: [0, 1],
-      translateY: [50, 0], // Slide up effect for romantic feel
-      duration: 1200,
-      color: ['#FECACA', '#FCE7F3', this.props.textColor], // Romantic color transition: blush pink to soft rose
-      easing: 'easeOutCubic',
+      translateY: [60, 0], // Slightly increased slide-up for drama
+      duration: 1500, // Longer duration for smoother effect
+      color: ['#FFB6C1', '#FFF0F5', this.props.textColor], // Light pink to lavender blush transition
+      easing: 'easeOutQuad',
       delay: (elem, index) => index * this.props.animationSpeed
     });
   }
@@ -155,19 +153,18 @@ ${this.props.author}`;
     // Create styles
     const style = document.createElement('style');
     style.textContent = `
-      @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
       
       :host {
         display: flex;
         width: 100%;
-        height: 100vh; /* Full viewport height as fallback */
-        min-height: 100%; /* Inherit parent height if available */
+        height: 100%; /* Inherit parent height */
         margin: 0;
         justify-content: center;
         align-items: center;
         box-sizing: border-box;
         overflow: hidden;
-        background: linear-gradient(135deg, #FFF1F2 0%, #FECACA 100%); /* Romantic gradient background */
+        background: linear-gradient(135deg, #FFF0F5 0%, #FFB6C1 100%); /* Lavender blush to light pink */
       }
       
       .centered {
@@ -176,7 +173,7 @@ ${this.props.author}`;
         align-items: center;
         width: 100%;
         min-height: 100%;
-        padding: calc(10px + 2vw);
+        padding: calc(12px + 2vw);
         box-sizing: border-box;
         text-align: center;
       }
@@ -184,31 +181,31 @@ ${this.props.author}`;
       .text-animation {
         white-space: pre-wrap;
         color: ${this.props.textColor};
-        font-family: 'Great Vibes', cursive; /* Beautiful cursive font */
-        letter-spacing: 2px; /* Slightly wider for elegance */
-        font-size: calc(1.5rem + 1.5vw);
-        max-width: 90%; /* Prevent overflow */
-        line-height: 1.4; /* Improved readability */
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        font-family: 'Parisienne', cursive; /* Elegant cursive font */
+        letter-spacing: 3px; /* Wider for sophistication */
+        font-size: calc(1.6rem + 1.6vw);
+        max-width: 85%; /* Prevent overflow */
+        line-height: 1.5; /* Enhanced readability */
+        text-shadow: 0 3px 5px rgba(0, 0, 0, 0.25); /* Deeper shadow for elegance */
       }
       
       .text-animation .letter {
-        font-family: 'Great Vibes', cursive;
+        font-family: 'Parisienne', cursive;
         display: inline-block;
         color: ${this.props.textColor};
       }
       
       @media (max-width: 768px) {
         .text-animation {
-          font-size: calc(1.2rem + 1.2vw);
-          padding: calc(8px + 1.5vw);
+          font-size: calc(1.3rem + 1.3vw);
+          padding: calc(10px + 1.5vw);
         }
       }
       
       @media (max-width: 480px) {
         .text-animation {
-          font-size: calc(1rem + 1vw);
-          padding: calc(6px + 1vw);
+          font-size: calc(1.1rem + 1vw);
+          padding: calc(8px + 1vw);
         }
       }
     `;
@@ -219,8 +216,7 @@ ${this.props.author}`;
     
     const textAnimation = document.createElement('div');
     textAnimation.className = 'text-animation';
-    textAnimation.textContent = `${this.props.quoteText}
-${this.props.author}`;
+    textAnimation.textContent = `${this.props.quoteText}\n${this.props.author}`;
     
     container.appendChild(textAnimation);
     
