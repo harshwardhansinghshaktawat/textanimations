@@ -173,18 +173,27 @@ ${this.props.author}`;
       @import url('https://api.fontshare.com/v2/css?f[]=telma@400&display=swap');
       
       :host {
-        display: block;
+        display: flex;
         width: 100%;
+        min-height: 100vh; /* Fallback for full viewport height */
+        height: 100%; /* Inherit parent height if available */
+        box-sizing: border-box;
+        justify-content: center;
+        align-items: center;
+        position: relative;
       }
       
       .centered {
         position: relative;
         width: 100%;
+        min-height: 100%; /* Ensure it takes full height of :host */
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px;
+        padding: calc(10px + 1vw);
         box-sizing: border-box;
+        /* Debugging border to visualize container */
+        border: 1px solid red; /* Remove after testing */
       }
       
       .text-animation {
@@ -195,6 +204,7 @@ ${this.props.author}`;
         text-align: center;
         font-size: calc(1rem + 1vw);
         max-width: 100%;
+        position: relative;
       }
       
       .text-animation .letter {
@@ -202,6 +212,14 @@ ${this.props.author}`;
         display: inline-block;
         color: ${this.props.textColor};
         text-shadow: -1px 3px 4px #1d1e22;
+      }
+      
+      /* Fallback for absolute centering */
+      .text-animation.fallback {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
       }
       
       @media (max-width: 768px) {
