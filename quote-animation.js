@@ -1,4 +1,4 @@
-// quote-animation.js - Custom element for animated quote
+// quote-animation.js - Custom element for animated romantic quote
 
 class QuoteAnimation extends HTMLElement {
   static get observedAttributes() {
@@ -8,14 +8,13 @@ class QuoteAnimation extends HTMLElement {
   constructor() {
     super();
     
-    // Default properties
+    // Default properties with romantic theme
     this.props = {
-      quoteText: `« Le bonheur est un papillon qui, lorsqu'il est poursuivi,
-est toujours juste au-dessus de votre portée, mais qui, 
-si vous vous asseyez tranquillement, peut se poser sur vous »`,
-      author: 'Nathaniel Hawthorne',
-      textColor: '#f5f5f5',
-      animationSpeed: 60 // Delay between letters in ms
+      quoteText: `« Je t’aime non seulement pour ce que tu es, 
+mais pour ce que je suis quand je suis avec toi. »`,
+      author: 'Elizabeth Barrett Browning',
+      textColor: '#FFF5F5', // Soft romantic pink
+      animationSpeed: 80 // Delay between letters in ms
     };
     
     // Create a shadow DOM
@@ -29,15 +28,11 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
     
     // Flag to track if animation has been started
     this.animationStarted = false;
-    
-    // Handle window resize for responsiveness
-    this.resizeHandler = this.handleResize.bind(this);
   }
   
   connectedCallback() {
     this.render();
     this.observer.observe(this);
-    window.addEventListener('resize', this.resizeHandler);
     
     // Load anime.js if not already loaded
     if (typeof anime === 'undefined') {
@@ -47,7 +42,6 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
   
   disconnectedCallback() {
     this.observer.unobserve(this);
-    window.removeEventListener('resize', this.resizeHandler);
   }
   
   attributeChangedCallback(name, oldValue, newValue) {
@@ -64,7 +58,7 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
         this.props.textColor = newValue;
         break;
       case 'animation-speed':
-        this.props.animationSpeed = parseInt(newValue, 10) || 60;
+        this.props.animationSpeed = parseInt(newValue, 10) || 80;
         break;
     }
     
@@ -96,11 +90,6 @@ ${this.props.author}`;
     }
   }
   
-  handleResize() {
-    // Additional resize handling if needed
-    // The CSS is already responsive with calc() and media queries
-  }
-  
   loadAnimeJS() {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js';
@@ -118,12 +107,14 @@ ${this.props.author}`;
         // Check if anime.js is loaded before starting animation
         if (typeof anime !== 'undefined') {
           this.startAnimation();
+          this.observer.disconnect(); // Disconnect observer to ensure animation runs only once
         } else {
           // If anime.js isn't loaded yet, wait for it
           const checkAnime = setInterval(() => {
             if (typeof anime !== 'undefined') {
               clearInterval(checkAnime);
               this.startAnimation();
+              this.observer.disconnect(); // Disconnect after animation starts
             }
           }, 100);
         }
@@ -146,21 +137,15 @@ ${this.props.author}`;
     const shadowRoot = this.shadowRoot;
     
     anime.timeline({
-      loop: true
+      loop: false // Animation runs only once
     }).add({
       targets: Array.from(shadowRoot.querySelectorAll('.letter')),
       opacity: [0, 1],
-      duration: 1000,
-      color: ['pink', 'cyan', this.props.textColor],
-      easing: 'easeInOutSine',
+      translateY: [50, 0], // Slide up effect for romantic feel
+      duration: 1200,
+      color: ['#FECACA', '#FCE7F3', this.props.textColor], // Romantic color transition: blush pink to soft rose
+      easing: 'easeOutCubic',
       delay: (elem, index) => index * this.props.animationSpeed
-    }).add({
-      targets: shadowRoot.querySelector('.text-animation'),
-      opacity: 0,
-      direction: 'alternate',
-      duration: 2000,
-      delay: 4000,
-      easing: "easeOutExpo"
     });
   }
   
@@ -170,7 +155,7 @@ ${this.props.author}`;
     // Create styles
     const style = document.createElement('style');
     style.textContent = `
-      @import url('https://api.fontshare.com/v2/css?f[]=telma@400&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
       
       :host {
         display: flex;
@@ -182,6 +167,7 @@ ${this.props.author}`;
         align-items: center;
         box-sizing: border-box;
         overflow: hidden;
+        background: linear-gradient(135deg, #FFF1F2 0%, #FECACA 100%); /* Romantic gradient background */
       }
       
       .centered {
@@ -190,7 +176,7 @@ ${this.props.author}`;
         align-items: center;
         width: 100%;
         min-height: 100%;
-        padding: calc(10px + 1vw);
+        padding: calc(10px + 2vw);
         box-sizing: border-box;
         text-align: center;
       }
@@ -198,28 +184,31 @@ ${this.props.author}`;
       .text-animation {
         white-space: pre-wrap;
         color: ${this.props.textColor};
-        font-family: 'Telma', cursive;
-        letter-spacing: 1px;
-        font-size: calc(1rem + 1vw);
-        max-width: 90%; /* Prevent overflow on narrow screens */
+        font-family: 'Great Vibes', cursive; /* Beautiful cursive font */
+        letter-spacing: 2px; /* Slightly wider for elegance */
+        font-size: calc(1.5rem + 1.5vw);
+        max-width: 90%; /* Prevent overflow */
+        line-height: 1.4; /* Improved readability */
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
       }
       
       .text-animation .letter {
-        font-family: 'Telma', cursive;
+        font-family: 'Great Vibes', cursive;
         display: inline-block;
         color: ${this.props.textColor};
-        text-shadow: -1px 3px 4px #1d1e22;
       }
       
       @media (max-width: 768px) {
         .text-animation {
-          font-size: calc(0.8rem + 1vw);
+          font-size: calc(1.2rem + 1.2vw);
+          padding: calc(8px + 1.5vw);
         }
       }
       
       @media (max-width: 480px) {
         .text-animation {
-          font-size: calc(0.6rem + 1vw);
+          font-size: calc(1rem + 1vw);
+          padding: calc(6px + 1vw);
         }
       }
     `;
