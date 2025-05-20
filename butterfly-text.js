@@ -1,178 +1,139 @@
-class ButterflyText extends HTMLElement {
+/**
+ * Gradient Text Animation Custom Element for Wix
+ * 
+ * This custom element creates an animated text effect with gradual letter appearance
+ * and color transitions.
+ */
+
+class GradientTextAnimation extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
-    this.isAnimating = false;
-    this.hasAnimated = false;
-    this.observer = null;
-  }
-
-  static get observedAttributes() {
-    return ['text', 'font-size', 'font-color', 'background-color', 'text-alignment'];
-  }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    if (oldValue !== newValue) {
-      console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`);
-      this.render();
-      if (this.hasAnimated) {
-        this.resetAnimation();
-      }
-    }
   }
 
   connectedCallback() {
-    this.render();
-    this.handleResize = () => this.render();
-    window.addEventListener('resize', this.handleResize);
-    setTimeout(() => this.setupIntersectionObserver(), 0);
-  }
-
-  disconnectedCallback() {
-    window.removeEventListener('resize', this.handleResize);
-    this.disconnectObserver();
-  }
-
-  disconnectObserver() {
-    if (this.observer) {
-      this.observer.disconnect();
-      this.observer = null;
-    }
-  }
-
-  setupIntersectionObserver() {
-    this.disconnectObserver();
-    this.observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          console.log('IntersectionObserver triggered', {
-            isIntersecting: entry.isIntersecting,
-            boundingClientRect: entry.boundingClientRect,
-            rootBounds: entry.rootBounds
-          });
-          if (entry.isIntersecting && !this.isAnimating && !this.hasAnimated) {
-            this.isAnimating = true;
-            this.animate();
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px' } // Lowered threshold for easier triggering
-    );
-    const container = this.shadowRoot.querySelector('.centered');
-    if (container) {
-      this.observer.observe(container);
-    } else {
-      console.error('Container (.centered) not found in shadow DOM');
-    }
-  }
-
-  resetAnimation() {
-    this.isAnimating = false;
-    this.hasAnimated = false;
-    const textElement = this.shadowRoot.querySelector('.text-animation');
-    if (textElement) {
-      textElement.style.opacity = '0';
-      textElement.innerHTML = this.getAttribute('text').replace(/\S/g, '<span class="letter">$&</span>');
-    }
-    this.setupIntersectionObserver();
-  }
-
-  animate() {
-    const textElement = this.shadowRoot.querySelector('.text-animation');
-    if (textElement) {
-      console.log('Starting animation, letter count:', this.shadowRoot.querySelectorAll('.text-animation .letter').length);
-      anime.timeline({ loop: false }).add({
-        targets: '.text-animation .letter',
-        opacity: [0, 1],
-        duration: 1000,
-        color: ['#FF69B4', '#00FFFF', '#E6E6FA'],
-        easing: 'easeInOutSine',
-        delay: (elem, index) => index * 60,
-      }).add({
-        targets: '.text-animation',
-        opacity: 0,
-        duration: 2000,
-        delay: 4000,
-        easing: 'easeOutExpo',
-        complete: () => {
-          this.hasAnimated = true;
-          this.disconnectObserver();
-          console.log('Animation completed');
-        },
-      });
-    } else {
-      console.error('Text element (.text-animation) not found');
-    }
-  }
-
-  render() {
-    const text = this.getAttribute('text') || 'Happiness is a butterfly, which when pursued, is always just beyond your grasp, but which, if you will sit down quietly, may alight upon you.\n\nNathaniel Hawthorne';
-    const fontSize = parseInt(this.getAttribute('font-size')) || 28;
-    const fontColor = this.getAttribute('font-color') || '#E6E6FA';
-    const backgroundColor = this.getAttribute('background-color') || '#0A0A23';
-    const textAlignment = this.getAttribute('text-alignment') || 'center';
-
-    console.log('Rendering with:', { text, fontSize, fontColor, backgroundColor, textAlignment });
-    console.log('Letter spans to be created:', text.replace(/\S/g, '<span class="letter">$&</span>').length);
-
+    // Default quote and author - can be customized in Wix Editor through properties
+    const defaultQuote = "Happiness is not a destination, it is a way of life. The joy we seek is found not in the journey's end, but in the steps we take along the way.";
+    const defaultAuthor = "Marcus Aurelius";
+    
+    // Get properties or use defaults
+    const quote = this.getAttribute('quote') || defaultQuote;
+    const author = this.getAttribute('author') || defaultAuthor;
+    
+    // Creating the combined text (quote + author)
+    const fullText = `${quote}\n${author}`;
+    
     this.shadowRoot.innerHTML = `
       <style>
-        @import url('https://api.fontshare.com/v2/css?f[]=telma@400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&display=swap');
+        
         :host {
           display: block;
           width: 100%;
           height: 100%;
-          min-width: 300px;
-          margin: 0;
-          padding: 0;
-          position: absolute;
-          top: 0;
-          left: 0;
-          overflow: hidden;
         }
-        .centered {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
+        
+        .container {
           width: 100%;
           height: 100%;
           display: flex;
           align-items: center;
-          justify-content: ${textAlignment};
-          background: linear-gradient(to bottom, ${backgroundColor}, #2A2A72);
-          margin: 0;
-          padding: 0 40px;
-          box-sizing: border-box;
+          justify-content: center;
+          overflow: hidden;
+          user-select: none;
         }
+        
+        .centered {
+          position: relative;
+          max-width: 80%;
+        }
+        
         .text-animation {
-          white-space: pre-wrap;
-          color: ${fontColor};
-          font-size: ${fontSize}px;
-          font-family: 'Telma', cursive, sans-serif;
+          white-space: pre;
+          color: #f8f8ff;
+          font-size: 1.7rem;
+          font-family: 'Cormorant Garamond', serif;
           letter-spacing: 1px;
-          text-align: ${textAlignment};
-          max-width: 90%;
-          overflow-wrap: break-word;
-          opacity: 0; /* Restored for animation */
+          text-align: center;
         }
+        
         .text-animation .letter {
-          font-family: 'Telma', cursive, sans-serif;
+          font-family: 'Cormorant Garamond', serif;
           display: inline-block;
-          color: ${fontColor};
-          text-shadow: -1px 3px 4px #0A0A23;
-        }
-        @media (max-width: 600px) {
-          .text-animation {
-            font-size: calc(${fontSize}px * 0.8);
-          }
+          color: #f8f8ff;
+          text-shadow: -1px 3px 4px #1e3a5f;
         }
       </style>
-      <div class="centered">
-        <div class="text-animation">${text.replace(/\S/g, '<span class="letter">$&</span>')}</div>
+      
+      <div class="container">
+        <div class="centered">
+          <div class="text-animation">${fullText}</div>
+        </div>
       </div>
     `;
+    
+    // Processing each letter for animation
+    const element = this.shadowRoot.querySelector(".text-animation");
+    element.innerHTML = element.textContent.replace(/\S/g, '<span class="letter">$&</span>');
+    
+    // Load anime.js library if not already loaded
+    this._loadAnimeJS().then(() => {
+      this._animateText();
+    });
+  }
+  
+  _loadAnimeJS() {
+    return new Promise((resolve) => {
+      if (window.anime) {
+        resolve();
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js';
+      script.onload = () => resolve();
+      document.head.appendChild(script);
+    });
+  }
+  
+  _animateText() {
+    const timeline = window.anime.timeline({
+      loop: true
+    });
+    
+    // First animation: Letters appear with color change
+    timeline.add({
+      targets: this.shadowRoot.querySelectorAll('.text-animation .letter'),
+      opacity: [0, 1],
+      duration: 1000,
+      color: ['#6a0dad', '#4682b4', '#f8f8ff'], // Purple, Steel Blue, White
+      easing: 'easeInOutSine',
+      delay: (elem, index) => index * 60
+    });
+    
+    // Second animation: Text fades out
+    timeline.add({
+      targets: this.shadowRoot.querySelector('.text-animation'),
+      opacity: 0,
+      direction: 'alternate',
+      duration: 2000,
+      delay: 4000,
+      easing: "easeOutExpo"
+    });
+  }
+  
+  // Define properties for the Wix Editor
+  static get observedAttributes() {
+    return ['quote', 'author'];
+  }
+  
+  attributeChangedCallback(name, oldValue, newValue) {
+    if (this.shadowRoot && (name === 'quote' || name === 'author')) {
+      // Re-render when properties change
+      this.connectedCallback();
+    }
   }
 }
 
-customElements.define('butterfly-text', ButterflyText);
+// Register the custom element
+customElements.define('gradient-text-animation', GradientTextAnimation);
