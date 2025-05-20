@@ -13,6 +13,7 @@ class ButterflyText extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue) {
+      console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`); // Debug
       this.render();
       if (this.hasAnimated) {
         this.resetAnimation();
@@ -25,6 +26,7 @@ class ButterflyText extends HTMLElement {
     this.handleResize = () => this.render();
     window.addEventListener('resize', this.handleResize);
     setTimeout(() => this.setupIntersectionObserver(), 0);
+    // this.animate(); // Uncomment for testing without IntersectionObserver
   }
 
   disconnectedCallback() {
@@ -44,17 +46,20 @@ class ButterflyText extends HTMLElement {
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          console.log('IntersectionObserver triggered', entry.isIntersecting); // Debug
           if (entry.isIntersecting && !this.isAnimating && !this.hasAnimated) {
             this.isAnimating = true;
             this.animate();
           }
         });
       },
-      { threshold: 0.2 }
+      { threshold: 0.5 } // Increased for testing
     );
     const container = this.shadowRoot.querySelector('.centered');
     if (container) {
       this.observer.observe(container);
+    } else {
+      console.error('Container (.centered) not found'); // Debug
     }
   }
 
@@ -72,6 +77,7 @@ class ButterflyText extends HTMLElement {
   animate() {
     const textElement = this.shadowRoot.querySelector('.text-animation');
     if (textElement) {
+      console.log('Starting animation'); // Debug
       anime.timeline({ loop: false }).add({
         targets: '.text-animation .letter',
         opacity: [0, 1],
@@ -88,8 +94,11 @@ class ButterflyText extends HTMLElement {
         complete: () => {
           this.hasAnimated = true;
           this.disconnectObserver();
+          console.log('Animation completed'); // Debug
         },
       });
+    } else {
+      console.error('Text element (.text-animation) not found'); // Debug
     }
   }
 
@@ -99,6 +108,8 @@ class ButterflyText extends HTMLElement {
     const fontColor = this.getAttribute('font-color') || '#E6E6FA';
     const backgroundColor = this.getAttribute('background-color') || '#0A0A23';
     const textAlignment = this.getAttribute('text-alignment') || 'center';
+
+    console.log('Rendering with:', { text, fontSize, fontColor, backgroundColor, textAlignment }); // Debug
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -124,7 +135,7 @@ class ButterflyText extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: ${textAlignment};
-          background: linear-gradient(to bottom, ${backgroundColor}, #2A2A72);
+          background: ${backgroundColor}; /* Solid color for testing */
           margin: 0;
           padding: 0 20px;
           box-sizing: border-box;
@@ -133,13 +144,13 @@ class ButterflyText extends HTMLElement {
           white-space: pre;
           color: ${fontColor};
           font-size: ${fontSize}px;
-          font-family: 'Telma', cursive;
+          font-family: 'Telma', cursive, sans-serif;
           letter-spacing: 1px;
           text-align: ${textAlignment};
-          opacity: 0;
+          /* opacity: 0; */ /* Comment out for testing */
         }
         .text-animation .letter {
-          font-family: 'Telma', cursive;
+          font-family: 'Telma', cursive, sans-serif;
           display: inline-block;
           color: ${fontColor};
           text-shadow: -1px 3px 4px #0A0A23;
