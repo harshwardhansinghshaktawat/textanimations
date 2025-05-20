@@ -176,16 +176,27 @@ ${this.props.author}`;
         width: 100%;
         height: 100%;
         position: relative;
+        min-height: 300px;
+      }
+      
+      :host > div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       
       .centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         width: 90%;
         max-width: 800px;
         box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       
       .text-animation {
@@ -219,6 +230,8 @@ ${this.props.author}`;
     `;
     
     // Create HTML structure
+    const wrapper = document.createElement('div');
+    
     const container = document.createElement('div');
     container.className = 'centered';
     
@@ -228,10 +241,11 @@ ${this.props.author}`;
 ${this.props.author}`;
     
     container.appendChild(textAnimation);
+    wrapper.appendChild(container);
     
     // Add elements to shadow DOM
     shadowRoot.appendChild(style);
-    shadowRoot.appendChild(container);
+    shadowRoot.appendChild(wrapper);
   }
 }
 
