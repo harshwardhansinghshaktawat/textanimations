@@ -146,7 +146,7 @@ ${this.props.author}`;
     const shadowRoot = this.shadowRoot;
     
     anime.timeline({
-      loop: false // Changed to false to run animation only once
+      loop: true
     }).add({
       targets: Array.from(shadowRoot.querySelectorAll('.letter')),
       opacity: [0, 1],
@@ -156,7 +156,8 @@ ${this.props.author}`;
       delay: (elem, index) => index * this.props.animationSpeed
     }).add({
       targets: shadowRoot.querySelector('.text-animation'),
-      opacity: [1, 0.8, 1], // Modified to subtly fade and come back to full opacity
+      opacity: 0,
+      direction: 'alternate',
       duration: 2000,
       delay: 4000,
       easing: "easeOutExpo"
@@ -175,21 +176,18 @@ ${this.props.author}`;
         display: block;
         width: 100%;
         height: 100%;
-        position: relative;
-        min-height: 400px;
-        overflow: visible !important;
+        box-sizing: border-box;
       }
       
-      .quote-container {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 90%;
-        max-width: 800px;
-        text-align: center;
+      .centered {
+        position: relative;
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: calc(10px + 1vw);
         box-sizing: border-box;
-        z-index: 1;
       }
       
       .text-animation {
@@ -200,8 +198,6 @@ ${this.props.author}`;
         text-align: center;
         font-size: calc(1rem + 1vw);
         max-width: 100%;
-        padding: 20px;
-        box-sizing: border-box;
       }
       
       .text-animation .letter {
@@ -224,44 +220,9 @@ ${this.props.author}`;
       }
     `;
     
-    // Create HTML structure - using a simpler, more reliable structure
+    // Create HTML structure
     const container = document.createElement('div');
-    container.className = 'quote-container';
-    
-    const textAnimation = document.createElement('div');
-    textAnimation.className = 'text-animation';
-    textAnimation.textContent = `${this.props.quoteText}
-${this.props.author}`;
-    
-    container.appendChild(textAnimation);
-    
-    // Add elements to shadow DOM
-    shadowRoot.appendChild(style);
-    shadowRoot.appendChild(container);
-      
-      .text-animation .letter {
-        font-family: 'Telma', cursive;
-        display: inline-block;
-        color: ${this.props.textColor};
-        text-shadow: -1px 3px 4px #1d1e22;
-      }
-      
-      @media (max-width: 768px) {
-        .text-animation {
-          font-size: calc(0.8rem + 1vw);
-        }
-      }
-      
-      @media (max-width: 480px) {
-        .text-animation {
-          font-size: calc(0.6rem + 1vw);
-        }
-      }
-    `;
-    
-    // Create HTML structure - using a simpler, more reliable structure
-    const container = document.createElement('div');
-    container.className = 'quote-container';
+    container.className = 'centered';
     
     const textAnimation = document.createElement('div');
     textAnimation.className = 'text-animation';
