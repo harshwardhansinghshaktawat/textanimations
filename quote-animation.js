@@ -175,18 +175,15 @@ ${this.props.author}`;
       :host {
         display: block;
         width: 100%;
-        height: 100%;
-        box-sizing: border-box;
       }
       
       .centered {
         position: relative;
         width: 100%;
-        min-height: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: calc(10px + 1vw);
+        padding: 20px;
         box-sizing: border-box;
       }
       
