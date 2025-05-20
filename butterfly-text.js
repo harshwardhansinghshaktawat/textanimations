@@ -13,7 +13,7 @@ class ButterflyText extends HTMLElement {
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue !== newValue) {
-      console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`); // Debug
+      console.log(`Attribute ${name} changed from ${oldValue} to ${newValue}`);
       this.render();
       if (this.hasAnimated) {
         this.resetAnimation();
@@ -26,7 +26,6 @@ class ButterflyText extends HTMLElement {
     this.handleResize = () => this.render();
     window.addEventListener('resize', this.handleResize);
     setTimeout(() => this.setupIntersectionObserver(), 0);
-    // this.animate(); // Uncomment for testing without IntersectionObserver
   }
 
   disconnectedCallback() {
@@ -46,20 +45,24 @@ class ButterflyText extends HTMLElement {
     this.observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          console.log('IntersectionObserver triggered', entry.isIntersecting); // Debug
+          console.log('IntersectionObserver triggered', {
+            isIntersecting: entry.isIntersecting,
+            boundingClientRect: entry.boundingClientRect,
+            rootBounds: entry.rootBounds
+          });
           if (entry.isIntersecting && !this.isAnimating && !this.hasAnimated) {
             this.isAnimating = true;
             this.animate();
           }
         });
       },
-      { threshold: 0.5 } // Increased for testing
+      { threshold: 0.1, rootMargin: '0px' } // Lowered threshold for easier triggering
     );
     const container = this.shadowRoot.querySelector('.centered');
     if (container) {
       this.observer.observe(container);
     } else {
-      console.error('Container (.centered) not found'); // Debug
+      console.error('Container (.centered) not found in shadow DOM');
     }
   }
 
@@ -77,7 +80,7 @@ class ButterflyText extends HTMLElement {
   animate() {
     const textElement = this.shadowRoot.querySelector('.text-animation');
     if (textElement) {
-      console.log('Starting animation'); // Debug
+      console.log('Starting animation, letter count:', this.shadowRoot.querySelectorAll('.text-animation .letter').length);
       anime.timeline({ loop: false }).add({
         targets: '.text-animation .letter',
         opacity: [0, 1],
@@ -94,11 +97,11 @@ class ButterflyText extends HTMLElement {
         complete: () => {
           this.hasAnimated = true;
           this.disconnectObserver();
-          console.log('Animation completed'); // Debug
+          console.log('Animation completed');
         },
       });
     } else {
-      console.error('Text element (.text-animation) not found'); // Debug
+      console.error('Text element (.text-animation) not found');
     }
   }
 
@@ -109,7 +112,8 @@ class ButterflyText extends HTMLElement {
     const backgroundColor = this.getAttribute('background-color') || '#0A0A23';
     const textAlignment = this.getAttribute('text-alignment') || 'center';
 
-    console.log('Rendering with:', { text, fontSize, fontColor, backgroundColor, textAlignment }); // Debug
+    console.log('Rendering with:', { text, fontSize, fontColor, backgroundColor, textAlignment });
+    console.log('Letter spans to be created:', text.replace(/\S/g, '<span class="letter">$&</span>').length);
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -118,6 +122,7 @@ class ButterflyText extends HTMLElement {
           display: block;
           width: 100%;
           height: 100%;
+          min-width: 300px;
           margin: 0;
           padding: 0;
           position: absolute;
@@ -135,25 +140,32 @@ class ButterflyText extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: ${textAlignment};
-          background: ${backgroundColor}; /* Solid color for testing */
+          background: linear-gradient(to bottom, ${backgroundColor}, #2A2A72);
           margin: 0;
-          padding: 0 20px;
+          padding: 0 40px;
           box-sizing: border-box;
         }
         .text-animation {
-          white-space: pre;
+          white-space: pre-wrap;
           color: ${fontColor};
           font-size: ${fontSize}px;
           font-family: 'Telma', cursive, sans-serif;
           letter-spacing: 1px;
           text-align: ${textAlignment};
-          /* opacity: 0; */ /* Comment out for testing */
+          max-width: 90%;
+          overflow-wrap: break-word;
+          opacity: 0; /* Restored for animation */
         }
         .text-animation .letter {
           font-family: 'Telma', cursive, sans-serif;
           display: inline-block;
           color: ${fontColor};
           text-shadow: -1px 3px 4px #0A0A23;
+        }
+        @media (max-width: 600px) {
+          .text-animation {
+            font-size: calc(${fontSize}px * 0.8);
+          }
         }
       </style>
       <div class="centered">
