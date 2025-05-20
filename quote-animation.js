@@ -176,27 +176,20 @@ ${this.props.author}`;
         width: 100%;
         height: 100%;
         position: relative;
-        min-height: 300px;
+        min-height: 400px;
+        overflow: visible !important;
       }
       
-      :host > div {
+      .quote-container {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      
-      .centered {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 90%;
         max-width: 800px;
+        text-align: center;
         box-sizing: border-box;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        z-index: 1;
       }
       
       .text-animation {
@@ -207,6 +200,8 @@ ${this.props.author}`;
         text-align: center;
         font-size: calc(1rem + 1vw);
         max-width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
       }
       
       .text-animation .letter {
@@ -229,11 +224,9 @@ ${this.props.author}`;
       }
     `;
     
-    // Create HTML structure
-    const wrapper = document.createElement('div');
-    
+    // Create HTML structure - using a simpler, more reliable structure
     const container = document.createElement('div');
-    container.className = 'centered';
+    container.className = 'quote-container';
     
     const textAnimation = document.createElement('div');
     textAnimation.className = 'text-animation';
@@ -241,11 +234,45 @@ ${this.props.author}`;
 ${this.props.author}`;
     
     container.appendChild(textAnimation);
-    wrapper.appendChild(container);
     
     // Add elements to shadow DOM
     shadowRoot.appendChild(style);
-    shadowRoot.appendChild(wrapper);
+    shadowRoot.appendChild(container);
+      
+      .text-animation .letter {
+        font-family: 'Telma', cursive;
+        display: inline-block;
+        color: ${this.props.textColor};
+        text-shadow: -1px 3px 4px #1d1e22;
+      }
+      
+      @media (max-width: 768px) {
+        .text-animation {
+          font-size: calc(0.8rem + 1vw);
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .text-animation {
+          font-size: calc(0.6rem + 1vw);
+        }
+      }
+    `;
+    
+    // Create HTML structure - using a simpler, more reliable structure
+    const container = document.createElement('div');
+    container.className = 'quote-container';
+    
+    const textAnimation = document.createElement('div');
+    textAnimation.className = 'text-animation';
+    textAnimation.textContent = `${this.props.quoteText}
+${this.props.author}`;
+    
+    container.appendChild(textAnimation);
+    
+    // Add elements to shadow DOM
+    shadowRoot.appendChild(style);
+    shadowRoot.appendChild(container);
   }
 }
 
