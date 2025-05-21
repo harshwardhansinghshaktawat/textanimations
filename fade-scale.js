@@ -29,6 +29,7 @@ class FadeScale extends HTMLElement {
 
   render() {
     const imageUrl = this.getAttribute('image-url') || 'https://static.wixstatic.com/media/8874a0_1bc1ba0e24c44fd8bfd899c1b4234d3b~mv2.webp';
+    const fallbackImageUrl = 'https://via.placeholder.com/1920x1080?text=Fallback+Image'; // Fallback
     const text = this.getAttribute('text') || 'SHINE ON';
     const fontFamily = this.getAttribute('font-family') || 'Poppins';
     const fontSize = parseFloat(this.getAttribute('font-size')) || 8;
@@ -61,6 +62,22 @@ class FadeScale extends HTMLElement {
           z-index: -1;
           transform: scale(1.8);
           animation: scaleImage ${animationDuration}s ${animationEasing} forwards;
+          opacity: 1; /* Ensure visibility */
+        }
+
+        .image-error {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          z-index: -1;
+          background: #333; /* Fallback background */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-family: sans-serif;
+          text-align: center;
         }
 
         .text {
@@ -95,7 +112,7 @@ class FadeScale extends HTMLElement {
           }
         }
       </style>
-      <img src="${imageUrl}" alt="" class="image">
+      <img src="${imageUrl}" alt="" class="image" onerror="this.className='image-error'; this.src='${fallbackImageUrl}'; console.error('Failed to load image: ${imageUrl}');">
       <${seoTag} class="text">${text}</${seoTag}>
     `;
   }
