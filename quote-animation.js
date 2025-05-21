@@ -6,7 +6,7 @@ class QuoteAnimation extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['text', 'seo-tag', 'text-color', 'background-color', 'font-family', 'font-size'];
+    return ['quote', 'author', 'seo-tag', 'text-color', 'background-color', 'font-family', 'font-size'];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -63,7 +63,8 @@ class QuoteAnimation extends HTMLElement {
   }
 
   render() {
-    const text = this.getAttribute('text') || 'Happiness is not something ready-made. It comes from your own actions.\n\n– Dalai Lama';
+    const quote = this.getAttribute('quote') || 'Happiness is not something ready-made. It comes from your own actions.';
+    const author = this.getAttribute('author') || '– Dalai Lama';
     const seoTag = this.getAttribute('seo-tag') || 'p';
     const textColor = this.getAttribute('text-color') || '#E6E6FA';
     const backgroundColor = this.getAttribute('background-color') || '#1C2526';
@@ -72,8 +73,14 @@ class QuoteAnimation extends HTMLElement {
 
     this.isAnimating = false;
 
-    // Split text into letters, preserving whitespace and newlines
-    const letters = text
+    // Split quote into letters, preserving whitespace and newlines
+    const quoteLetters = quote
+      .split('')
+      .map(char => (/\S/.test(char) ? `<span class="letter">${char}</span>` : char === '\n' ? '<br>' : char))
+      .join('');
+
+    // Split author into letters
+    const authorLetters = author
       .split('')
       .map(char => (/\S/.test(char) ? `<span class="letter">${char}</span>` : char))
       .join('');
@@ -99,32 +106,41 @@ class QuoteAnimation extends HTMLElement {
           left: 50%;
           transform: translate(-50%, -50%);
           width: 100%;
-          max-width: 800px; /* Prevent text from becoming too wide */
+          max-width: 800px;
           padding: 20px;
           box-sizing: border-box;
         }
 
         .text-animation {
-          white-space: pre-line; /* Preserve newlines, wrap without breaking words */
-          word-break: keep-all; /* Prevent word splitting */
+          white-space: pre-line;
+          word-break: keep-all;
           color: ${textColor};
           font-size: ${fontSize}rem;
           font-family: ${fontFamily}, cursive;
           letter-spacing: 1px;
           text-align: center;
-          line-height: 1.5; /* Improve readability */
+          line-height: 1.5;
+        }
+
+        .author {
+          color: ${textColor};
+          font-size: ${fontSize * 0.9}rem; /* Slightly smaller for author */
+          font-family: ${fontFamily}, cursive;
+          text-align: center;
+          margin-top: 1rem;
         }
 
         .letter {
           display: inline-block;
-          opacity: 0; /* Start invisible for animation */
+          opacity: 0;
           font-family: ${fontFamily}, cursive;
           color: ${textColor};
           text-shadow: -1px 3px 4px rgba(0, 0, 0, 0.5);
         }
       </style>
       <div class="centered">
-        <${seoTag} class="text-animation">${letters}</${seoTag}>
+        <${seoTag} class="text-animation">${quoteLetters}</${seoTag}>
+        <div class="author">${authorLetters}</div>
       </div>
     `;
   }
