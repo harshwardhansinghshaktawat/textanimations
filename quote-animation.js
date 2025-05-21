@@ -105,12 +105,14 @@ class QuoteAnimation extends HTMLElement {
         }
 
         .text-animation {
-          white-space: pre-wrap; /* Preserve newlines and spaces */
+          white-space: pre-line; /* Preserve newlines, wrap without breaking words */
+          word-break: keep-all; /* Prevent word splitting */
           color: ${textColor};
           font-size: ${fontSize}rem;
           font-family: ${fontFamily}, cursive;
           letter-spacing: 1px;
           text-align: center;
+          line-height: 1.5; /* Improve readability */
         }
 
         .letter {
