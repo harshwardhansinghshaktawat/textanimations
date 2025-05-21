@@ -1,5 +1,3 @@
-// quote-animation.js - Custom element for animated quote
-
 class QuoteAnimation extends HTMLElement {
   static get observedAttributes() {
     return ['quote-text', 'author', 'text-color', 'animation-speed'];
@@ -8,14 +6,12 @@ class QuoteAnimation extends HTMLElement {
   constructor() {
     super();
     
-    // Default properties
+    // Default properties with new romantic theme
     this.props = {
-      quoteText: `« Le bonheur est un papillon qui, lorsqu'il est poursuivi,
-est toujours juste au-dessus de votre portée, mais qui, 
-si vous vous asseyez tranquillement, peut se poser sur vous »`,
-      author: 'Nathaniel Hawthorne',
-      textColor: '#f5f5f5',
-      animationSpeed: 60 // Delay between letters in ms
+      quoteText: `« L’amour est une étoile dans la nuit, guidant nos âmes vers l’éternité. »`,
+      author: 'Victor Hugo',
+      textColor: '#FFE4E1', // Misty rose for romantic feel
+      animationSpeed: 100 // Delay between letters in ms
     };
     
     // Create a shadow DOM
@@ -24,20 +20,16 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
     // Create an intersection observer to detect when element enters viewport
     this.observer = new IntersectionObserver(this.handleIntersection.bind(this), {
       root: null, // Use the viewport
-      threshold: 0.1 // Fire when 10% of the element is visible
+      threshold: 0.2 // Fire when 20% of the element is visible
     });
     
     // Flag to track if animation has been started
     this.animationStarted = false;
-    
-    // Handle window resize for responsiveness
-    this.resizeHandler = this.handleResize.bind(this);
   }
   
   connectedCallback() {
     this.render();
     this.observer.observe(this);
-    window.addEventListener('resize', this.resizeHandler);
     
     // Load anime.js if not already loaded
     if (typeof anime === 'undefined') {
@@ -47,7 +39,6 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
   
   disconnectedCallback() {
     this.observer.unobserve(this);
-    window.removeEventListener('resize', this.resizeHandler);
   }
   
   attributeChangedCallback(name, oldValue, newValue) {
@@ -64,7 +55,7 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
         this.props.textColor = newValue;
         break;
       case 'animation-speed':
-        this.props.animationSpeed = parseInt(newValue, 10) || 60;
+        this.props.animationSpeed = parseInt(newValue, 10) || 100;
         break;
     }
     
@@ -72,6 +63,8 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
     
     // Restart animation if it was already started
     if (this.animationStarted) {
+      this.animationStarted = false; // Reset to allow re-animation
+      this.observer.observe(this); // Re-observe for viewport entry
       this.startAnimation();
     }
   }
@@ -82,8 +75,7 @@ si vous vous asseyez tranquillement, peut se poser sur vous »`,
     const styleElem = shadowRoot.querySelector('style');
     
     if (textElem) {
-      textElem.textContent = `${this.props.quoteText}
-${this.props.author}`;
+      textElem.textContent = `${this.props.quoteText}\n${this.props.author}`;
     }
     
     if (styleElem) {
@@ -94,11 +86,6 @@ ${this.props.author}`;
       );
       styleElem.textContent = updatedStyle;
     }
-  }
-  
-  handleResize() {
-    // Additional resize handling if needed
-    // The CSS is already responsive with calc() and media queries
   }
   
   loadAnimeJS() {
@@ -118,12 +105,14 @@ ${this.props.author}`;
         // Check if anime.js is loaded before starting animation
         if (typeof anime !== 'undefined') {
           this.startAnimation();
+          this.observer.disconnect(); // Disconnect to ensure animation runs only once
         } else {
-          // If anime.js isn't loaded yet, wait for it
+          // Wait for anime.js to load
           const checkAnime = setInterval(() => {
             if (typeof anime !== 'undefined') {
               clearInterval(checkAnime);
               this.startAnimation();
+              this.observer.disconnect();
             }
           }, 100);
         }
@@ -146,21 +135,15 @@ ${this.props.author}`;
     const shadowRoot = this.shadowRoot;
     
     anime.timeline({
-      loop: true
+      loop: false // Animation runs only once
     }).add({
       targets: Array.from(shadowRoot.querySelectorAll('.letter')),
       opacity: [0, 1],
-      duration: 1000,
-      color: ['pink', 'cyan', this.props.textColor],
-      easing: 'easeInOutSine',
+      translateY: [60, 0], // Slightly increased slide-up for drama
+      duration: 1500, // Longer duration for smoother effect
+      color: ['#FFB6C1', '#FFF0F5', this.props.textColor], // Light pink to lavender blush transition
+      easing: 'easeOutQuad',
       delay: (elem, index) => index * this.props.animationSpeed
-    }).add({
-      targets: shadowRoot.querySelector('.text-animation'),
-      opacity: 0,
-      direction: 'alternate',
-      duration: 2000,
-      delay: 4000,
-      easing: "easeOutExpo"
     });
   }
   
@@ -170,49 +153,59 @@ ${this.props.author}`;
     // Create styles
     const style = document.createElement('style');
     style.textContent = `
-      @import url('https://api.fontshare.com/v2/css?f[]=telma@400&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Parisienne&display=swap');
       
       :host {
-        display: block;
+        display: flex;
         width: 100%;
+        height: 100%; /* Inherit parent height */
+        margin: 0;
+        justify-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        overflow: hidden;
+        background: linear-gradient(135deg, #FFF0F5 0%, #FFB6C1 100%); /* Lavender blush to light pink */
       }
       
       .centered {
-        position: relative;
-        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 20px;
+        width: 100%;
+        min-height: 100%;
+        padding: calc(12px + 2vw);
         box-sizing: border-box;
+        text-align: center;
       }
       
       .text-animation {
         white-space: pre-wrap;
         color: ${this.props.textColor};
-        font-family: 'Telma', cursive;
-        letter-spacing: 1px;
-        text-align: center;
-        font-size: calc(1rem + 1vw);
-        max-width: 100%;
+        font-family: 'Parisienne', cursive; /* Elegant cursive font */
+        letter-spacing: 3px; /* Wider for sophistication */
+        font-size: calc(1.6rem + 1.6vw);
+        max-width: 85%; /* Prevent overflow */
+        line-height: 1.5; /* Enhanced readability */
+        text-shadow: 0 3px 5px rgba(0, 0, 0, 0.25); /* Deeper shadow for elegance */
       }
       
       .text-animation .letter {
-        font-family: 'Telma', cursive;
+        font-family: 'Parisienne', cursive;
         display: inline-block;
         color: ${this.props.textColor};
-        text-shadow: -1px 3px 4px #1d1e22;
       }
       
       @media (max-width: 768px) {
         .text-animation {
-          font-size: calc(0.8rem + 1vw);
+          font-size: calc(1.3rem + 1.3vw);
+          padding: calc(10px + 1.5vw);
         }
       }
       
       @media (max-width: 480px) {
         .text-animation {
-          font-size: calc(0.6rem + 1vw);
+          font-size: calc(1.1rem + 1vw);
+          padding: calc(8px + 1vw);
         }
       }
     `;
@@ -223,8 +216,7 @@ ${this.props.author}`;
     
     const textAnimation = document.createElement('div');
     textAnimation.className = 'text-animation';
-    textAnimation.textContent = `${this.props.quoteText}
-${this.props.author}`;
+    textAnimation.textContent = `${this.props.quoteText}\n${this.props.author}`;
     
     container.appendChild(textAnimation);
     
