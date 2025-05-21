@@ -72,10 +72,21 @@ class QuoteAnimation extends HTMLElement {
 
     this.isAnimating = false;
 
-    // Split text into letters, preserving whitespace and newlines
-    const letters = text
-      .split('')
-      .map(char => (/\S/.test(char) ? `<span class="letter">${char}</span>` : char))
+    // Split text into words, preserving spaces and newlines
+    const formattedText = text
+      .replace(/\n/g, '<br>') // Convert newlines to <br>
+      .split(/(\s+)/) // Split on whitespace, preserving spaces
+      .map(segment => {
+        if (/\S/.test(segment)) {
+          // For non-whitespace, wrap each letter in a span and group in a nowrap word
+          const letters = segment
+            .split('')
+            .map(char => `<span class="letter">${char}</span>`)
+            .join('');
+          return `<span class="word">${letters}</span>`;
+        }
+        return segment; // Preserve whitespace
+      })
       .join('');
 
     this.shadowRoot.innerHTML = `
@@ -105,14 +116,17 @@ class QuoteAnimation extends HTMLElement {
         }
 
         .text-animation {
-          white-space: pre-line; /* Preserve newlines, wrap without breaking words */
-          word-break: keep-all; /* Prevent word splitting */
           color: ${textColor};
           font-size: ${fontSize}rem;
           font-family: ${fontFamily}, cursive;
           letter-spacing: 1px;
           text-align: center;
           line-height: 1.5; /* Improve readability */
+        }
+
+        .word {
+          display: inline-block;
+          white-space: nowrap; /* Prevent word breaking */
         }
 
         .letter {
@@ -124,7 +138,7 @@ class QuoteAnimation extends HTMLElement {
         }
       </style>
       <div class="centered">
-        <${seoTag} class="text-animation">${letters}</${seoTag}>
+        <${seoTag} class="text-animation">${formattedText}</${seoTag}>
       </div>
     `;
   }
