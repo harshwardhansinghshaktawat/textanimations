@@ -51,6 +51,7 @@ class FadeScale extends HTMLElement {
           margin: 0;
           padding: 0;
           background: ${backgroundColor};
+          opacity: 0
           overflow: hidden;
         }
 
