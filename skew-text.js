@@ -31,7 +31,7 @@ class SkewText extends HTMLElement {
     const text = this.getAttribute('text') || 'INSPIRE';
     const fontFamily = this.getAttribute('font-family') || 'Montserrat';
     const fontSize = parseFloat(this.getAttribute('font-size')) || 3;
-    const charDistance = parseFloat(this.getAttribute('char-distance')) || 0.3;
+    const charDistance = parseFloat(this.getAttribute('char-distance')) || 3;
     const animationDirection = this.getAttribute('animation-direction') || 'left';
     const seoTag = this.getAttribute('seo-tag') || 'p';
     const textAlignment = this.getAttribute('text-alignment') || 'center';
@@ -46,6 +46,9 @@ class SkewText extends HTMLElement {
     const shadowInitialSkew = (initialSkew / 2) * -1;
     const shadowHoverSkew = (hoverSkew / 2) * -1;
     const animationDuration = 0.3; // Seconds
+
+    // Scale charDistance (1 to 10) to em (0.1 to 1)
+    const scaledCharDistance = charDistance / 10;
 
     // Determine rotation axis based on direction
     const isHorizontal = ['left', 'right'].includes(animationDirection);
@@ -125,7 +128,7 @@ class SkewText extends HTMLElement {
         }
 
         ${seoTag} span + span {
-          margin-left: ${charDistance}em;
+          margin-left: ${scaledCharDistance}em;
         }
 
         @media (min-width: 20em) {
