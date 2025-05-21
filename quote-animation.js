@@ -146,7 +146,7 @@ ${this.props.author}`;
     const shadowRoot = this.shadowRoot;
     
     anime.timeline({
-      loop: false // Changed to false to run animation only once
+      loop: true
     }).add({
       targets: Array.from(shadowRoot.querySelectorAll('.letter')),
       opacity: [0, 1],
@@ -156,7 +156,8 @@ ${this.props.author}`;
       delay: (elem, index) => index * this.props.animationSpeed
     }).add({
       targets: shadowRoot.querySelector('.text-animation'),
-      opacity: [1, 0.8, 1], // Modified to subtly fade and come back to full opacity
+      opacity: 0,
+      direction: 'alternate',
       duration: 2000,
       delay: 4000,
       easing: "easeOutExpo"
@@ -174,29 +175,16 @@ ${this.props.author}`;
       :host {
         display: block;
         width: 100%;
-        height: 100%;
-        position: relative;
-        min-height: 300px;
-      }
-      
-      :host > div {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
       }
       
       .centered {
-        width: 90%;
-        max-width: 800px;
-        box-sizing: border-box;
+        position: relative;
+        width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
       }
       
       .text-animation {
@@ -230,8 +218,6 @@ ${this.props.author}`;
     `;
     
     // Create HTML structure
-    const wrapper = document.createElement('div');
-    
     const container = document.createElement('div');
     container.className = 'centered';
     
@@ -241,11 +227,10 @@ ${this.props.author}`;
 ${this.props.author}`;
     
     container.appendChild(textAnimation);
-    wrapper.appendChild(container);
     
     // Add elements to shadow DOM
     shadowRoot.appendChild(style);
-    shadowRoot.appendChild(wrapper);
+    shadowRoot.appendChild(container);
   }
 }
 
